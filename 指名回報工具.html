@@ -1,0 +1,531 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>oo75 時光隅｜櫃台</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@500;600;700&family=Noto+Sans+TC:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#ffffff;
+    --panel:#faf7f0;
+    --panel-2:#f2ede0;
+    --line:rgba(0,0,0,0.35);
+    --gold:#a5820f;
+    --gold-dim:#8f7625;
+    --parchment:#2b2620;
+    --mist:#4a453d;
+    --mist-dim:#8a8375;
+    --rust:#a85a2e;
+    --radius:3px;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    background:var(--bg);
+    color:var(--mist);
+    font-family:'Noto Sans TC',sans-serif;
+    font-weight:300;
+  }
+  .wrap{max-width:1180px;margin:0 auto;padding:0 24px;}
+
+  header{
+    border-bottom:1px solid var(--line);
+    padding:22px 0;
+    display:flex;
+    align-items:baseline;
+    justify-content:space-between;
+    gap:16px;
+    flex-wrap:wrap;
+  }
+  header .title{
+    font-family:'Noto Serif TC',serif;
+    color:var(--parchment);
+    font-size:20px;
+    font-weight:600;
+    letter-spacing:0.03em;
+  }
+  header .title .corner-wrap{
+    position:relative;
+    display:inline;
+    font-family:'Noto Serif TC',serif;
+    color:var(--parchment);
+    font-size:20px;
+    font-weight:600;
+    margin-left:0;
+  }
+  header .title .mark{
+    font-family:'Noto Serif TC',serif;
+    font-size:20px;
+    font-weight:600;
+    color:var(--gold);
+    margin-right:4px;
+    vertical-align:baseline;
+  }
+  header .title span{color:var(--gold-dim);font-size:13px;margin-left:10px;font-family:'Noto Sans TC',sans-serif;}
+  header .title .dot{margin-left:-0.2em;}
+  header .staff-field{display:flex;align-items:center;gap:10px;}
+  header .staff-field label{font-size:12px;color:var(--mist-dim);}
+  header .staff-field input{
+    background:var(--panel-2);
+    border:1px solid var(--line);
+    color:var(--parchment);
+    padding:8px 12px;
+    border-radius:var(--radius);
+    font-family:'Noto Sans TC',sans-serif;
+    font-size:14px;
+    width:140px;
+  }
+  header .staff-field input:focus{outline:none;border-color:var(--gold);}
+
+  main{
+    display:grid;
+    grid-template-columns:1fr 340px;
+    gap:0;
+    align-items:start;
+  }
+  @media(max-width:900px){
+    main{grid-template-columns:1fr;}
+  }
+
+  .order-area{padding:28px 0;border-right:1px solid var(--line);padding-right:32px;}
+  @media(max-width:900px){.order-area{border-right:none;padding-right:0;}}
+
+  .group-label{
+    font-size:12px;
+    color:var(--gold-dim);
+    letter-spacing:0.12em;
+    margin:0 0 12px;
+    display:flex;
+    align-items:baseline;
+    gap:10px;
+  }
+  .group-label::after{content:"";flex:1;height:1px;background:var(--line);}
+  .group-label:not(:first-child){margin-top:26px;}
+
+  .item-grid{
+    display:grid;
+    grid-template-columns:repeat(2,1fr);
+    gap:10px;
+  }
+  @media(max-width:520px){.item-grid{grid-template-columns:1fr;}}
+
+  .item-card{
+    background:var(--panel);
+    border:1px solid var(--line);
+    border-radius:var(--radius);
+    padding:14px 16px;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:10px;
+  }
+  .item-card .info{min-width:0;}
+  .item-card .name{
+    color:var(--parchment);
+    font-size:14.5px;
+    font-weight:500;
+    white-space:nowrap;
+    overflow:hidden;
+    text-overflow:ellipsis;
+  }
+  .item-card .price{color:var(--rust);font-size:12.5px;margin-top:3px;}
+  .stepper{display:flex;align-items:center;gap:8px;flex-shrink:0;}
+  .stepper button{
+    width:26px;height:26px;
+    border-radius:50%;
+    border:1px solid var(--gold-dim);
+    background:transparent;
+    color:var(--gold);
+    font-size:15px;
+    line-height:1;
+    cursor:pointer;
+    display:flex;align-items:center;justify-content:center;
+    transition:background .15s,color .15s;
+  }
+  .stepper button:hover{background:var(--gold);color:var(--bg);}
+  .stepper .count{
+    min-width:22px;
+    text-align:center;
+    font-family:'Noto Serif TC',serif;
+    font-size:16px;
+    color:var(--parchment);
+    font-weight:600;
+  }
+
+  .item-card .qty-row{display:flex;align-items:center;gap:8px;flex-shrink:0;}
+  .item-card .qty-row input{
+    width:64px;
+    background:var(--panel-2);
+    border:1px solid var(--line);
+    color:var(--parchment);
+    padding:6px 8px;
+    border-radius:var(--radius);
+    font-size:14px;
+    text-align:center;
+  }
+  .item-card .qty-row input:focus{outline:none;border-color:var(--gold);}
+  .item-card .qty-row .unit{font-size:12px;color:var(--mist-dim);white-space:nowrap;}
+  .item-card .qty-row input#tip{width:120px;}
+
+  .free-fields{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:10px;
+    margin-top:6px;
+  }
+  .free-field{
+    background:var(--panel);
+    border:1px solid var(--line);
+    border-radius:var(--radius);
+    padding:12px 14px;
+  }
+  .free-field label{
+    display:block;
+    font-size:12.5px;
+    color:var(--mist-dim);
+    margin-bottom:8px;
+  }
+  .free-field .row{display:flex;align-items:center;gap:8px;}
+  .free-field input[type=number]{
+    flex:1;
+    background:var(--panel-2);
+    border:1px solid var(--line);
+    color:var(--parchment);
+    padding:7px 10px;
+    border-radius:var(--radius);
+    font-size:14px;
+    width:100%;
+  }
+  .free-field input:focus{outline:none;border-color:var(--gold);}
+  .free-field .unit{font-size:12px;color:var(--mist-dim);white-space:nowrap;}
+
+  /* ---------- Summary side ---------- */
+  .summary{
+    padding:28px 0 28px 32px;
+    position:sticky;
+    top:0;
+  }
+  @media(max-width:900px){.summary{padding-left:0;}}
+
+  .summary h3{
+    font-family:'Noto Serif TC',serif;
+    color:var(--parchment);
+    font-size:15px;
+    font-weight:600;
+    margin:0 0 14px;
+  }
+
+  .totals-box{
+    background:var(--panel);
+    border:1px solid var(--line);
+    border-radius:var(--radius);
+    padding:18px 20px;
+  }
+  .totals-box .row{
+    display:flex;
+    justify-content:space-between;
+    align-items:baseline;
+    padding:7px 0;
+    font-size:13.5px;
+    border-bottom:1px dashed var(--line);
+  }
+  .totals-box .row:last-child{border-bottom:none;}
+  .totals-box .row .k{color:var(--mist-dim);}
+  .totals-box .row .v{font-family:'Noto Serif TC',serif;color:var(--parchment);font-weight:600;}
+  .totals-box .row.grand{margin-top:8px;padding-top:14px;border-top:1px solid var(--line);border-bottom:none;}
+  .totals-box .row.grand .v{color:var(--gold);font-size:19px;}
+
+  .actions{display:flex;flex-direction:column;gap:10px;margin-top:18px;}
+  button.act{
+    font-family:'Noto Sans TC',sans-serif;
+    font-size:14px;
+    padding:11px 18px;
+    border-radius:var(--radius);
+    border:1px solid var(--gold);
+    background:transparent;
+    color:var(--gold);
+    cursor:pointer;
+    transition:background .2s,color .2s;
+  }
+  button.act.primary{background:var(--gold);color:var(--bg);font-weight:500;}
+  button.act:hover{background:var(--gold);color:var(--bg);}
+  .copied-msg{
+    font-size:12px;color:var(--gold);text-align:center;
+    height:14px;opacity:0;transition:opacity .3s;
+  }
+  .copied-msg.show{opacity:1;}
+
+  .output{
+    margin-top:18px;
+    background:var(--bg);
+    border:1px solid var(--line);
+    border-radius:var(--radius);
+    padding:16px 18px;
+    font-family:monospace;
+    font-size:13px;
+    white-space:pre-wrap;
+    color:var(--mist);
+    line-height:1.8;
+    min-height:40px;
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="wrap" style="display:flex;align-items:baseline;justify-content:space-between;width:100%;flex-wrap:wrap;gap:16px;">
+    <div class="title"><span class="mark">oo75</span> 時光<span class="corner-wrap">隅<span class="dot">。</span></span> <span>指名營業回報</span></div>
+    <div class="staff-field">
+      <label for="staffName">指名員工</label>
+      <input type="text" id="staffName" placeholder="輸入姓名">
+    </div>
+  </div>
+</header>
+
+<div class="wrap">
+<main>
+  <div class="order-area">
+
+    <div class="group-label">指名</div>
+    <div class="item-grid">
+      <div class="item-card" data-key="solo" data-price="150000">
+        <div class="info"><div class="name">單人</div><div class="price">150,000 Gil</div></div>
+        <div class="stepper">
+          <button onclick="step('solo',-1)">－</button>
+          <span class="count" id="count-solo">0</span>
+          <button onclick="step('solo',1)">＋</button>
+        </div>
+      </div>
+      <div class="item-card" data-key="soloExtra" data-price="80000">
+        <div class="info"><div class="name">單人加時</div><div class="price">+80,000 Gil</div></div>
+        <div class="stepper">
+          <button onclick="step('soloExtra',-1)">－</button>
+          <span class="count" id="count-soloExtra">0</span>
+          <button onclick="step('soloExtra',1)">＋</button>
+        </div>
+      </div>
+      <div class="item-card" data-key="group" data-price="130000">
+        <div class="info"><div class="name">團體</div><div class="price">130,000 Gil</div></div>
+        <div class="stepper">
+          <button onclick="step('group',-1)">－</button>
+          <span class="count" id="count-group">0</span>
+          <button onclick="step('group',1)">＋</button>
+        </div>
+      </div>
+      <div class="item-card" data-key="groupExtra" data-price="60000">
+        <div class="info"><div class="name">團體加時</div><div class="price">+60,000 Gil</div></div>
+        <div class="stepper">
+          <button onclick="step('groupExtra',-1)">－</button>
+          <span class="count" id="count-groupExtra">0</span>
+          <button onclick="step('groupExtra',1)">＋</button>
+        </div>
+      </div>
+      <div class="item-card" data-key="peiben1" data-price="100000">
+        <div class="info"><div class="name">100級、拾級、練級、殲滅</div><div class="price">100,000 Gil</div></div>
+        <div class="stepper">
+          <button onclick="step('peiben1',-1)">－</button>
+          <span class="count" id="count-peiben1">0</span>
+          <button onclick="step('peiben1',1)">＋</button>
+        </div>
+      </div>
+      <div class="item-card" data-key="peiben2" data-price="300000">
+        <div class="info"><div class="name">主線、大型、高難</div><div class="price">300,000 Gil</div></div>
+        <div class="stepper">
+          <button onclick="step('peiben2',-1)">－</button>
+          <span class="count" id="count-peiben2">0</span>
+          <button onclick="step('peiben2',1)">＋</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="group-label">其他</div>
+    <div class="item-grid">
+      <div class="item-card">
+        <div class="info"><div class="name">簽繪</div><div class="price">75,000 Gil</div></div>
+        <div class="stepper">
+          <button onclick="stepExtra('sketch',-1)">－</button>
+          <span class="count" id="count-sketch">0</span>
+          <button onclick="stepExtra('sketch',1)">＋</button>
+        </div>
+      </div>
+      <div class="item-card">
+        <div class="info"><div class="name">合照簽繪</div><div class="price">175,000 Gil</div></div>
+        <div class="stepper">
+          <button onclick="stepExtra('photosketch',-1)">－</button>
+          <span class="count" id="count-photosketch">0</span>
+          <button onclick="stepExtra('photosketch',1)">＋</button>
+        </div>
+      </div>
+      <div class="item-card">
+        <div class="info"><div class="name">工時</div><div class="price">30,000 Gil</div></div>
+        <div class="qty-row">
+          <input type="number" min="0" id="other-amount" value="0">
+          <span class="unit">hr(s)</span>
+        </div>
+      </div>
+      <div class="item-card">
+        <div class="info"><div class="name">小費</div><div class="price">Total Gil</div></div>
+        <div class="qty-row">
+          <input type="text" inputmode="numeric" pattern="[0-9]*" id="tip" value="0" oninput="this.value=this.value.replace(/[^0-9]/g,'')">
+          <span class="unit">Gil</span>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="summary">
+    <h3>即時統計</h3>
+    <div class="totals-box" id="totalsBox">
+      <div class="row"><span class="k">指名營收</span><span class="v" id="itemTotal">0</span></div>
+      <div class="row"><span class="k">其他金額</span><span class="v" id="otherTotal">0</span></div>
+      <div class="row"><span class="k">小費</span><span class="v" id="tipTotal">0</span></div>
+      <div class="row grand"><span class="k">合計</span><span class="v" id="grandTotal">0</span></div>
+    </div>
+
+    <h3 style="margin-top:24px;">本日支薪</h3>
+    <div class="totals-box" id="totalsBox2">
+      <div class="row"><span class="k">指名獎金</span><span class="v" id="bonusTotal2">0</span></div>
+      <div class="row"><span class="k">簽繪項目（x70%）</span><span class="v" id="itemTotal2">0</span></div>
+      <div class="row"><span class="k">工時（x 30,000 Gil）</span><span class="v" id="otherTotal2">0</span></div>
+      <div class="row"><span class="k">小費（x 95%）</span><span class="v" id="tipTotal2">0</span></div>
+      <div class="row grand"><span class="k">總薪</span><span class="v" id="grandTotal2">0</span></div>
+    </div>
+
+    <div class="output" id="output">按「產生回報」即可依目前統計輸出回報文字。</div>
+
+    <div class="actions">
+      <button class="act primary" onclick="generateReport()">產生回報</button>
+      <button class="act" onclick="copyReport()">複製回報文字</button>
+      <button class="act" onclick="resetAll()">清空重填</button>
+      <div class="copied-msg" id="copiedMsg">已複製 ✓</div>
+    </div>
+  </div>
+</main>
+</div>
+
+<script>
+const items = {
+  solo: 150000,
+  soloExtra: 80000,
+  group: 130000,
+  groupExtra: 60000,
+  peiben1: 100000,
+  peiben2: 300000
+};
+const counts = { solo:0, soloExtra:0, group:0, groupExtra:0, peiben1:0, peiben2:0 };
+const extra = { sketch:0, photosketch:0 };
+
+function step(key, delta){
+  counts[key] = Math.max(0, counts[key] + delta);
+  document.getElementById('count-' + key).textContent = counts[key];
+  updateTotals();
+}
+
+function stepExtra(key, delta){
+  extra[key] = Math.max(0, extra[key] + delta);
+  document.getElementById('count-' + key).textContent = extra[key];
+  updateTotals();
+}
+
+function num(id){
+  const v = parseInt(document.getElementById(id).value, 10);
+  return isNaN(v) || v < 0 ? 0 : v;
+}
+
+function fmt(n){
+  return n.toLocaleString('en-US') + ' Gil';
+}
+
+function updateTotals(){
+  let itemTotal = 0;
+  for(const k in items){ itemTotal += counts[k] * items[k]; }
+  const other = extra.sketch * 75000 + extra.photosketch * 175000;
+  const tip = num('tip');
+  const grand = itemTotal + other + tip;
+
+  document.getElementById('itemTotal').textContent = fmt(itemTotal);
+  document.getElementById('otherTotal').textContent = fmt(other);
+  document.getElementById('tipTotal').textContent = fmt(tip);
+  document.getElementById('grandTotal').textContent = fmt(grand);
+
+  const payBonus = counts.solo * 50000 + counts.group * 30000 + counts.peiben1 * 50000 + counts.peiben2 * 150000;
+  document.getElementById('bonusTotal2').textContent = fmt(payBonus);
+  const payItem = other * 0.7;
+  document.getElementById('itemTotal2').textContent = fmt(payItem);
+  const payOther = num('other-amount') * 30000;
+  document.getElementById('otherTotal2').textContent = fmt(payOther);
+  const payTip = tip * 0.95;
+  document.getElementById('tipTotal2').textContent = fmt(payTip);
+  const payGrand = payBonus + payItem + payOther + payTip;
+  document.getElementById('grandTotal2').textContent = fmt(payGrand);
+
+  return { itemTotal, other, tip, grand, payGrand };
+}
+
+['other-amount','tip'].forEach(id=>{
+  document.getElementById(id).addEventListener('input', updateTotals);
+});
+
+function generateReport(){
+  const name = document.getElementById('staffName').value.trim() || '（未填寫）';
+  const { tip, grand, payGrand } = updateTotals();
+  const handover = grand - payGrand;
+
+  const lines = [
+    `［指名營業回報］（${name}）`,
+    `單人：${counts.solo}　單人加時：${counts.soloExtra}`,
+    `團體：${counts.group}　團體加時：${counts.groupExtra}`,
+    `陪本1：${counts.peiben1}　陪本2：${counts.peiben2}`,
+    ``,
+    `小費：${fmt(tip)}`,
+    `———`,
+    `營業合計：${fmt(grand)}`,
+    `總薪：${fmt(payGrand)}`,
+    `上繳金額：${fmt(handover)}`
+  ];
+
+  document.getElementById('output').textContent = lines.join('\n');
+}
+
+async function copyReport(){
+  generateReport();
+  const text = document.getElementById('output').textContent;
+  try{
+    await navigator.clipboard.writeText(text);
+  }catch(e){
+    const ta = document.createElement('textarea');
+    ta.value = text;
+    document.body.appendChild(ta);
+    ta.select();
+    document.execCommand('copy');
+    document.body.removeChild(ta);
+  }
+  const msg = document.getElementById('copiedMsg');
+  msg.classList.add('show');
+  setTimeout(()=>msg.classList.remove('show'), 1600);
+}
+
+function resetAll(){
+  for(const k in counts){
+    counts[k] = 0;
+    document.getElementById('count-' + k).textContent = 0;
+  }
+  for(const k in extra){
+    extra[k] = 0;
+    document.getElementById('count-' + k).textContent = 0;
+  }
+  document.getElementById('other-amount').value = 0;
+  document.getElementById('tip').value = 0;
+  document.getElementById('staffName').value = '';
+  document.getElementById('output').textContent = '按「產生回報」即可依目前統計輸出回報文字。';
+  updateTotals();
+}
+
+updateTotals();
+</script>
+
+</body>
+</html>
