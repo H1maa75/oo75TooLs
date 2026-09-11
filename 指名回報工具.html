@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>oo75 時光隅｜櫃台</title>
+<title>oo75 時光隅｜指名營業回報</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@500;600;700&family=Noto+Sans+TC:wght@300;400;500;600&display=swap" rel="stylesheet">
 <style>
@@ -64,6 +64,12 @@
     vertical-align:baseline;
   }
   header .title span{color:var(--gold-dim);font-size:13px;margin-left:10px;font-family:'Noto Sans TC',sans-serif;}
+  header .title .subtitle{
+    color:var(--parchment);
+    font-size:20px;
+    font-family:'Noto Serif TC',serif;
+    font-weight:600;
+  }
   header .title .dot{margin-left:-0.2em;}
   header .staff-field{display:flex;align-items:center;gap:10px;}
   header .staff-field label{font-size:12px;color:var(--mist-dim);}
@@ -168,6 +174,33 @@
   .item-card .qty-row input:focus{outline:none;border-color:var(--gold);}
   .item-card .qty-row .unit{font-size:12px;color:var(--mist-dim);white-space:nowrap;}
   .item-card .qty-row input#tip{width:120px;}
+
+  .item-card.tip-card{
+    flex-direction:column;
+    align-items:stretch;
+    gap:10px;
+  }
+  .item-card.tip-card .info{
+    display:flex;
+    align-items:baseline;
+    justify-content:space-between;
+  }
+  .item-card.tip-card .price{color:var(--gold);font-size:15px;font-family:'Noto Serif TC',serif;font-weight:600;}
+  .item-card.tip-card .qty-row{width:100%;}
+  .item-card.tip-card .qty-row input{flex:1;width:auto;}
+  .tip-apply{
+    font-family:'Noto Sans TC',sans-serif;
+    font-size:13px;
+    padding:8px 16px;
+    border-radius:var(--radius);
+    border:1px solid var(--gold);
+    background:transparent;
+    color:var(--gold);
+    cursor:pointer;
+    white-space:nowrap;
+    transition:background .15s,color .15s;
+  }
+  .tip-apply:hover{background:var(--gold);color:var(--bg);}
 
   .free-fields{
     display:grid;
@@ -276,7 +309,7 @@
 
 <header>
   <div class="wrap" style="display:flex;align-items:baseline;justify-content:space-between;width:100%;flex-wrap:wrap;gap:16px;">
-    <div class="title"><span class="mark">oo75</span> 時光<span class="corner-wrap">隅<span class="dot">。</span></span> <span>指名營業回報</span></div>
+    <div class="title"><span class="mark">oo75</span> 時光<span class="corner-wrap">隅<span class="dot">。</span></span> <span class="subtitle">指名營業回報</span></div>
     <div class="staff-field">
       <label for="staffName">指名員工</label>
       <input type="text" id="staffName" placeholder="輸入姓名">
@@ -365,11 +398,14 @@
           <span class="unit">hr(s)</span>
         </div>
       </div>
-      <div class="item-card">
-        <div class="info"><div class="name">小費</div><div class="price">Total Gil</div></div>
+      <div class="item-card tip-card">
+        <div class="info">
+          <div class="name">小費</div>
+          <div class="price" id="tipDisplay">0 Gil</div>
+        </div>
         <div class="qty-row">
-          <input type="text" inputmode="numeric" pattern="[0-9]*" id="tip" value="0" oninput="this.value=this.value.replace(/[^0-9]/g,'')">
-          <span class="unit">Gil</span>
+          <input type="text" inputmode="numeric" id="tipDelta" placeholder="輸入追加或減少金額" oninput="this.value=this.value.replace(/[^-0-9]/g,'')" onkeydown="if(event.key==='Enter'){applyTipDelta();}">
+          <button type="button" class="tip-apply" onclick="applyTipDelta()">套用</button>
         </div>
       </div>
     </div>
@@ -417,6 +453,8 @@ const items = {
 };
 const counts = { solo:0, soloExtra:0, group:0, groupExtra:0, peiben1:0, peiben2:0 };
 const extra = { sketch:0, photosketch:0 };
+let tipTotal = 0;
+let tipLastDelta = 0;
 
 function step(key, delta){
   counts[key] = Math.max(0, counts[key] + delta);
@@ -439,11 +477,33 @@ function fmt(n){
   return n.toLocaleString('en-US') + ' Gil';
 }
 
+function updateTipDisplay(){
+  let text = fmt(tipTotal);
+  if(tipLastDelta !== 0){
+    const sign = tipLastDelta > 0 ? '+' : '';
+    text += ` ( ${sign}${tipLastDelta.toLocaleString('en-US')} Gil )`;
+  }
+  document.getElementById('tipDisplay').textContent = text;
+}
+
+function applyTipDelta(){
+  const input = document.getElementById('tipDelta');
+  const raw = input.value.trim();
+  if(raw === '' || raw === '-'){ input.value = ''; return; }
+  const delta = parseInt(raw, 10);
+  if(isNaN(delta) || delta === 0){ input.value = ''; return; }
+  tipTotal = Math.max(0, tipTotal + delta);
+  tipLastDelta = delta;
+  input.value = '';
+  updateTipDisplay();
+  updateTotals();
+}
+
 function updateTotals(){
   let itemTotal = 0;
   for(const k in items){ itemTotal += counts[k] * items[k]; }
   const other = extra.sketch * 75000 + extra.photosketch * 175000;
-  const tip = num('tip');
+  const tip = tipTotal;
   const grand = itemTotal + other + tip;
 
   document.getElementById('itemTotal').textContent = fmt(itemTotal);
@@ -465,9 +525,7 @@ function updateTotals(){
   return { itemTotal, other, tip, grand, payGrand };
 }
 
-['other-amount','tip'].forEach(id=>{
-  document.getElementById(id).addEventListener('input', updateTotals);
-});
+document.getElementById('other-amount').addEventListener('input', updateTotals);
 
 function generateReport(){
   const name = document.getElementById('staffName').value.trim() || '（未填寫）';
@@ -479,6 +537,7 @@ function generateReport(){
     `單人：${counts.solo}　單人加時：${counts.soloExtra}`,
     `團體：${counts.group}　團體加時：${counts.groupExtra}`,
     `陪本1：${counts.peiben1}　陪本2：${counts.peiben2}`,
+    `簽繪：${extra.sketch}　合照簽繪：${extra.photosketch}`,
     ``,
     `小費：${fmt(tip)}`,
     `———`,
@@ -518,12 +577,15 @@ function resetAll(){
     document.getElementById('count-' + k).textContent = 0;
   }
   document.getElementById('other-amount').value = 0;
-  document.getElementById('tip').value = 0;
+  tipTotal = 0;
+  tipLastDelta = 0;
+  updateTipDisplay();
   document.getElementById('staffName').value = '';
   document.getElementById('output').textContent = '按「產生回報」即可依目前統計輸出回報文字。';
   updateTotals();
 }
 
+updateTipDisplay();
 updateTotals();
 </script>
 

@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>oo75 時光隅｜櫃台</title>
+<title>oo75 時光隅｜櫃台營業回報</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@500;600;700&family=Noto+Sans+TC:wght@300;400;500;600&display=swap" rel="stylesheet">
 <style>
@@ -172,7 +172,43 @@
   }
   .item-card .qty-row input:focus{outline:none;border-color:var(--gold);}
   .item-card .qty-row .unit{font-size:12px;color:var(--mist-dim);white-space:nowrap;}
-  .item-card .qty-row input#tip{width:120px;}
+  .tip-card{flex-direction:column;align-items:stretch;gap:10px;}
+  .tip-card .tip-top{display:flex;justify-content:space-between;align-items:baseline;gap:10px;}
+  .tip-card .tip-amount{
+    font-family:'Noto Serif TC',serif;
+    color:var(--parchment);
+    font-weight:600;
+    font-size:15px;
+    text-align:right;
+  }
+  .tip-card .tip-delta{font-size:12px;color:var(--gold);margin-left:6px;font-family:'Noto Sans TC',sans-serif;font-weight:400;}
+  .tip-card .tip-adjust{display:flex;gap:8px;align-items:center;}
+  .tip-card .tip-adjust input{
+    flex:1;
+    min-width:0;
+    background:var(--panel-2);
+    border:1px solid var(--line);
+    color:var(--parchment);
+    padding:6px 8px;
+    border-radius:var(--radius);
+    font-size:14px;
+    text-align:center;
+  }
+  .tip-card .tip-adjust input:focus{outline:none;border-color:var(--gold);}
+  .tip-card .tip-adjust button{
+    width:28px;height:28px;
+    border-radius:50%;
+    border:1px solid var(--gold-dim);
+    background:transparent;
+    color:var(--gold);
+    font-size:14px;
+    line-height:1;
+    cursor:pointer;
+    display:flex;align-items:center;justify-content:center;
+    flex-shrink:0;
+    transition:background .15s,color .15s;
+  }
+  .tip-card .tip-adjust button:hover{background:var(--gold);color:var(--bg);}
 
   .free-fields{
     display:grid;
@@ -390,11 +426,15 @@
           <span class="unit">hr(s)</span>
         </div>
       </div>
-      <div class="item-card">
-        <div class="info"><div class="name">小費</div><div class="price">Total Gil</div></div>
-        <div class="qty-row">
-          <input type="text" inputmode="numeric" pattern="[0-9]*" id="tip" value="0" oninput="this.value=this.value.replace(/[^0-9]/g,'')">
-          <span class="unit">Gil</span>
+      <div class="item-card tip-card">
+        <div class="tip-top">
+          <div class="name">小費</div>
+          <div class="tip-amount"><span id="tipDisplay">0 Gil</span><span class="tip-delta" id="tipDelta"></span></div>
+        </div>
+        <div class="tip-adjust">
+          <input type="text" inputmode="numeric" pattern="[0-9]*" id="tipDeltaInput" placeholder="輸入金額" oninput="this.value=this.value.replace(/[^0-9]/g,'')">
+          <button type="button" onclick="adjustTip(1)">＋</button>
+          <button type="button" onclick="adjustTip(-1)">－</button>
         </div>
       </div>
     </div>
@@ -443,6 +483,8 @@ const items = {
 };
 const counts = { taco:0, sandwich:0, cake:0, tea:0, coffee:0, smoothie:0, ambertea:0, combo:0 };
 const extra = { sketch:0, photosketch:0 };
+let tip = 0;
+let lastTipDelta = 0;
 
 function step(key, delta){
   counts[key] = Math.max(0, counts[key] + delta);
@@ -453,6 +495,17 @@ function step(key, delta){
 function stepExtra(key, delta){
   extra[key] = Math.max(0, extra[key] + delta);
   document.getElementById('count-' + key).textContent = extra[key];
+  updateTotals();
+}
+
+function adjustTip(sign){
+  const inputEl = document.getElementById('tipDeltaInput');
+  const val = parseInt(inputEl.value, 10);
+  if(isNaN(val) || val <= 0) return;
+  const delta = sign * val;
+  tip = Math.max(0, tip + delta);
+  lastTipDelta = delta;
+  inputEl.value = '';
   updateTotals();
 }
 
@@ -469,13 +522,21 @@ function updateTotals(){
   let itemTotal = 0;
   for(const k in items){ itemTotal += counts[k] * items[k]; }
   const other = extra.sketch * 75000 + extra.photosketch * 175000;
-  const tip = num('tip');
   const grand = itemTotal + other + tip;
 
   document.getElementById('itemTotal').textContent = fmt(itemTotal);
   document.getElementById('otherTotal').textContent = fmt(other);
   document.getElementById('tipTotal').textContent = fmt(tip);
   document.getElementById('grandTotal').textContent = fmt(grand);
+
+  document.getElementById('tipDisplay').textContent = fmt(tip);
+  const deltaEl = document.getElementById('tipDelta');
+  if(lastTipDelta !== 0){
+    const sign = lastTipDelta > 0 ? '+' : '－';
+    deltaEl.textContent = `（${sign}${Math.abs(lastTipDelta).toLocaleString('en-US')}Gil）`;
+  } else {
+    deltaEl.textContent = '';
+  }
 
   const payItem = other * 0.7;
   document.getElementById('itemTotal2').textContent = fmt(payItem);
@@ -489,7 +550,7 @@ function updateTotals(){
   return { itemTotal, other, tip, grand, payGrand };
 }
 
-['other-amount','tip'].forEach(id=>{
+['other-amount'].forEach(id=>{
   document.getElementById(id).addEventListener('input', updateTotals);
 });
 
@@ -502,6 +563,7 @@ function generateReport(){
     `［外場營業回報］（${name}）`,
     `塔可：${counts.taco}　三明治：${counts.sandwich}　蛋糕：${counts.cake}　套餐：${counts.combo}`,
     `奶茶：${counts.tea}　咖啡：${counts.coffee}　桃露茶：${counts.smoothie}　琥珀茶玉：${counts.ambertea}`,
+    `簽繪：${extra.sketch}　合照簽繪：${extra.photosketch}`,
     ``,
     `小費：${fmt(tip)}`,
     `———`,
@@ -541,7 +603,9 @@ function resetAll(){
     document.getElementById('count-' + k).textContent = 0;
   }
   document.getElementById('other-amount').value = 0;
-  document.getElementById('tip').value = 0;
+  tip = 0;
+  lastTipDelta = 0;
+  document.getElementById('tipDeltaInput').value = '';
   document.getElementById('staffName').value = '';
   document.getElementById('output').textContent = '按「產生回報」即可依目前統計輸出回報文字。';
   updateTotals();
