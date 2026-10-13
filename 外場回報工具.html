@@ -329,78 +329,6 @@
 <main>
   <div class="order-area">
 
-    <div class="group-label">餐點</div>
-    <div class="item-grid">
-      <div class="item-card" data-key="taco" data-price="6000">
-        <div class="info"><div class="name">晴野炙牛塔可</div><div class="price">6,000 Gil</div></div>
-        <div class="stepper">
-          <button onclick="step('taco',-1)">－</button>
-          <span class="count" id="count-taco">0</span>
-          <button onclick="step('taco',1)">＋</button>
-        </div>
-      </div>
-      <div class="item-card" data-key="sandwich" data-price="6000">
-        <div class="info"><div class="name">月夜魚子三明治</div><div class="price">6,000 Gil</div></div>
-        <div class="stepper">
-          <button onclick="step('sandwich',-1)">－</button>
-          <span class="count" id="count-sandwich">0</span>
-          <button onclick="step('sandwich',1)">＋</button>
-        </div>
-      </div>
-      <div class="item-card" data-key="cake" data-price="5500">
-        <div class="info"><div class="name">南島雲朵蛋糕</div><div class="price">5,500 Gil</div></div>
-        <div class="stepper">
-          <button onclick="step('cake',-1)">－</button>
-          <span class="count" id="count-cake">0</span>
-          <button onclick="step('cake',1)">＋</button>
-        </div>
-      </div>
-      <div class="item-card" data-key="combo" data-price="10000">
-        <div class="info"><div class="name">隨機午茶套餐 1+1</div><div class="price">10,000 Gil</div></div>
-        <div class="stepper">
-          <button onclick="step('combo',-1)">－</button>
-          <span class="count" id="count-combo">0</span>
-          <button onclick="step('combo',1)">＋</button>
-        </div>
-      </div>
-    </div>
-
-    <div class="group-label">飲品</div>
-    <div class="item-grid">
-      <div class="item-card" data-key="tea" data-price="5000">
-        <div class="info"><div class="name">初醒奶茶</div><div class="price">5,000 Gil</div></div>
-        <div class="stepper">
-          <button onclick="step('tea',-1)">－</button>
-          <span class="count" id="count-tea">0</span>
-          <button onclick="step('tea',1)">＋</button>
-        </div>
-      </div>
-      <div class="item-card" data-key="coffee" data-price="5000">
-        <div class="info"><div class="name">雲絮咖啡</div><div class="price">5,000 Gil</div></div>
-        <div class="stepper">
-          <button onclick="step('coffee',-1)">－</button>
-          <span class="count" id="count-coffee">0</span>
-          <button onclick="step('coffee',1)">＋</button>
-        </div>
-      </div>
-      <div class="item-card" data-key="smoothie" data-price="4000">
-        <div class="info"><div class="name">曙光桃露茶</div><div class="price">4,000 Gil</div></div>
-        <div class="stepper">
-          <button onclick="step('smoothie',-1)">－</button>
-          <span class="count" id="count-smoothie">0</span>
-          <button onclick="step('smoothie',1)">＋</button>
-        </div>
-      </div>
-      <div class="item-card" data-key="ambertea" data-price="7000">
-        <div class="info"><div class="name">限定．琥珀茶玉</div><div class="price">7,000 Gil</div></div>
-        <div class="stepper">
-          <button onclick="step('ambertea',-1)">－</button>
-          <span class="count" id="count-ambertea">0</span>
-          <button onclick="step('ambertea',1)">＋</button>
-        </div>
-      </div>
-    </div>
-
     <div class="group-label">其他</div>
     <div class="item-grid">
       <div class="item-card">
@@ -444,7 +372,6 @@
   <div class="summary">
     <h3>即時統計</h3>
     <div class="totals-box" id="totalsBox">
-      <div class="row"><span class="k">品項營收</span><span class="v" id="itemTotal">0</span></div>
       <div class="row"><span class="k">其他金額</span><span class="v" id="otherTotal">0</span></div>
       <div class="row"><span class="k">小費</span><span class="v" id="tipTotal">0</span></div>
       <div class="row grand"><span class="k">合計</span><span class="v" id="grandTotal">0</span></div>
@@ -471,26 +398,9 @@
 </div>
 
 <script>
-const items = {
-  taco: 6000,
-  sandwich: 6000,
-  cake: 5500,
-  tea: 5000,
-  coffee: 5000,
-  smoothie: 4000,
-  ambertea: 7000,
-  combo: 10000
-};
-const counts = { taco:0, sandwich:0, cake:0, tea:0, coffee:0, smoothie:0, ambertea:0, combo:0 };
 const extra = { sketch:0, photosketch:0 };
 let tip = 0;
 let lastTipDelta = 0;
-
-function step(key, delta){
-  counts[key] = Math.max(0, counts[key] + delta);
-  document.getElementById('count-' + key).textContent = counts[key];
-  updateTotals();
-}
 
 function stepExtra(key, delta){
   extra[key] = Math.max(0, extra[key] + delta);
@@ -519,12 +429,9 @@ function fmt(n){
 }
 
 function updateTotals(){
-  let itemTotal = 0;
-  for(const k in items){ itemTotal += counts[k] * items[k]; }
   const other = extra.sketch * 75000 + extra.photosketch * 175000;
-  const grand = itemTotal + other + tip;
+  const grand = other + tip;
 
-  document.getElementById('itemTotal').textContent = fmt(itemTotal);
   document.getElementById('otherTotal').textContent = fmt(other);
   document.getElementById('tipTotal').textContent = fmt(tip);
   document.getElementById('grandTotal').textContent = fmt(grand);
@@ -547,7 +454,7 @@ function updateTotals(){
   const payGrand = payItem + payOther + payTip;
   document.getElementById('grandTotal2').textContent = fmt(payGrand);
 
-  return { itemTotal, other, tip, grand, payGrand };
+  return { other, tip, grand, payGrand };
 }
 
 ['other-amount'].forEach(id=>{
@@ -561,8 +468,6 @@ function generateReport(){
 
   const lines = [
     `［外場營業回報］（${name}）`,
-    `塔可：${counts.taco}　三明治：${counts.sandwich}　蛋糕：${counts.cake}　套餐：${counts.combo}`,
-    `奶茶：${counts.tea}　咖啡：${counts.coffee}　桃露茶：${counts.smoothie}　琥珀茶玉：${counts.ambertea}`,
     `簽繪：${extra.sketch}　合照簽繪：${extra.photosketch}`,
     ``,
     `小費：${fmt(tip)}`,
@@ -594,10 +499,6 @@ async function copyReport(){
 }
 
 function resetAll(){
-  for(const k in counts){
-    counts[k] = 0;
-    document.getElementById('count-' + k).textContent = 0;
-  }
   for(const k in extra){
     extra[k] = 0;
     document.getElementById('count-' + k).textContent = 0;
