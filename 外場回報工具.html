@@ -172,6 +172,7 @@
   }
   .item-card .qty-row input:focus{outline:none;border-color:var(--gold);}
   .item-card .qty-row .unit{font-size:12px;color:var(--mist-dim);white-space:nowrap;}
+  .item-card .qty-row input#item-revenue{width:160px;}
   .tip-card{flex-direction:column;align-items:stretch;gap:10px;}
   .tip-card .tip-top{display:flex;justify-content:space-between;align-items:baseline;gap:10px;}
   .tip-card .tip-amount{
@@ -329,7 +330,6 @@
 <main>
   <div class="order-area">
 
-    <div class="group-label">其他</div>
     <div class="item-grid">
       <div class="item-card">
         <div class="info"><div class="name">簽繪</div><div class="price">75,000 Gil</div></div>
@@ -354,6 +354,13 @@
           <span class="unit">hr(s)</span>
         </div>
       </div>
+      <div class="item-card">
+        <div class="info"><div class="name">品項營收</div></div>
+        <div class="qty-row">
+          <input type="text" inputmode="numeric" pattern="[0-9]*" id="item-revenue" value="0" oninput="this.value=this.value.replace(/[^0-9]/g,'')">
+          <span class="unit">Gil</span>
+        </div>
+      </div>
       <div class="item-card tip-card">
         <div class="tip-top">
           <div class="name">小費</div>
@@ -372,6 +379,7 @@
   <div class="summary">
     <h3>即時統計</h3>
     <div class="totals-box" id="totalsBox">
+      <div class="row"><span class="k">品項營收</span><span class="v" id="itemTotal">0</span></div>
       <div class="row"><span class="k">其他金額</span><span class="v" id="otherTotal">0</span></div>
       <div class="row"><span class="k">小費</span><span class="v" id="tipTotal">0</span></div>
       <div class="row grand"><span class="k">合計</span><span class="v" id="grandTotal">0</span></div>
@@ -430,8 +438,10 @@ function fmt(n){
 
 function updateTotals(){
   const other = extra.sketch * 75000 + extra.photosketch * 175000;
-  const grand = other + tip;
+  const itemTotal = num('item-revenue');
+  const grand = itemTotal + other + tip;
 
+  document.getElementById('itemTotal').textContent = fmt(itemTotal);
   document.getElementById('otherTotal').textContent = fmt(other);
   document.getElementById('tipTotal').textContent = fmt(tip);
   document.getElementById('grandTotal').textContent = fmt(grand);
@@ -457,7 +467,7 @@ function updateTotals(){
   return { other, tip, grand, payGrand };
 }
 
-['other-amount'].forEach(id=>{
+['other-amount','item-revenue'].forEach(id=>{
   document.getElementById(id).addEventListener('input', updateTotals);
 });
 
@@ -504,6 +514,7 @@ function resetAll(){
     document.getElementById('count-' + k).textContent = 0;
   }
   document.getElementById('other-amount').value = 0;
+  document.getElementById('item-revenue').value = 0;
   tip = 0;
   lastTipDelta = 0;
   document.getElementById('tipDeltaInput').value = '';
